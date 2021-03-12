@@ -1,0 +1,302 @@
+<html>
+    <head>
+        <title>Канарейка</title>
+        <link rel="icon" href="ico2.png">
+        <meta charset="utf-8" />
+    </head>
+    <body>
+        <div id="main-block">
+            <div id="head-block">
+                <div id = "menu">
+                    <div id="score">0</div>
+                    <form name="menu-form" id="menu-form">
+                        <select name="select-operator" id="select-operator">
+                            <option value="+-" selected>+ или -</option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                        </select>
+                    </form>
+                </div>
+                <img src="ico2.png" alt="Канарейка.png" id="canary" />
+            </div>
+            <div id="form-block">
+                <form name="task-form" id="task-form">
+                    <label name="status"></label>
+                    <br />
+                    <label name="task">121 : 3</label>
+                    <label name="lb">= (</label>
+                    <input type="text" name="first"></input>
+                    <label name="operator">-</label>
+                    <input type="text" name="second"></input>
+                    <label name="rb">) : </label>
+                    <label name="splitter">3</label>
+                    <label name="equal"> = </label>
+                    <input type="text" name="answer"></input>
+                    <br />
+                    <input type="button" name="enter" value="Готово" onClick="check();"></input>
+                    <br />
+                    <input type="button" name="next" value="Дальше" onClick="newTask();"></input>
+                </form>
+            </div>
+            <div id="text-block">
+                <div id="task-text">Найди результат деления, с помощью удобного разложения делимого на сумму или разность двух целых чисел.</div>
+                <br />
+                <div id="ico-copyright">Автор иконки: Дарья Блохина</div>
+                <div id="my-github"><a href = "https://github.com/raklit">Raklit (Github)</a></div>
+            </div>
+        </div>
+        <script language="javascript">
+            var a;
+            var b;
+            var operator;
+            
+            var score;
+            var correct_flag;
+
+            var select_operator_elem;
+
+            var status_elem;
+            var first_elem;
+            var second_elem;
+            var answer_elem;
+            var score_elem;
+            var enter_elem;
+
+            document.addEventListener("DOMContentLoaded", function(event) {
+                select_operator_elem = document.getElementsByName("select-operator")[0];
+                status_elem = document.getElementsByName("status")[0];
+                first_elem = document.getElementsByName("first")[0];
+                second_elem = document.getElementsByName("second")[0];
+                answer_elem = document.getElementsByName("answer")[0];
+                score_elem = document.getElementById("score");
+                enter_elem = document.getElementsByName("enter")[0];
+                sendScore(0);
+                newTask();
+            });
+
+            function sendStatus(msg, correct=false) {
+                status_elem.innerHTML = msg;
+                var color = correct ? "rgb(86, 151, 0)" : "rgb(255, 0, 0)";
+                first_elem.style.borderColor = color;
+                second_elem.style.borderColor = color;
+                answer_elem.style.borderColor = color;
+            }
+
+            function sendScore(val) {
+                score = val;
+                score_elem.innerHTML = val.toString();
+            }
+
+            function check() {
+                var first = parseInt(first_elem.value.trim(), 10);
+                var second = parseInt(second_elem.value.trim(), 10);
+                var answer = parseInt(answer_elem.value.trim(), 10);
+                if (correct_flag) {
+                    return;
+                }
+                if (isNaN(first) || isNaN(second) || isNaN(answer)) {
+                    sendStatus("Введите числа!");
+                    return;
+                }
+                if (first <= 0 || second <= 0) {
+                    sendStatus("Используйте положительные числа!");
+                    return;
+                }
+                if (operator == "+" && first + second != a) {
+                    sendStatus(first.toString() + " + " + second.toString() + " не равно " + a.toString() + "!");
+                    return;
+                }
+                if (operator == "-" && first - second != a) {
+                    sendStatus(first.toString() + " - " + second.toString() + " не равно " + a.toString() + "!");
+                    return;
+                }
+                if (first  % b != 0 || second % b != 0) {
+                    sendStatus("Числа разложения не делятся на " + b.toString() + " без остатка!");
+                    return; 
+                }
+                if (a / b != answer) {
+                    sendStatus(a.toString() + " : " + b.toString() + " не равно " + answer.toString() + "!");
+                    return;
+                }
+                var win = ["Молодец!", "Правильно!", "Отлично!", "Круто!", "Супер!", "Замечательно!", "Верно!"];
+                sendStatus(win[Math.floor(Math.random() * win.length)], true);
+                sendScore(score + 1);
+                correct_flag = true;
+                enter_elem.disabled = true;
+            }
+
+            function newTask() {
+                var temp1, temp2;
+                var flag1, flag2;
+                do {
+                    b = 3 + Math.floor(Math.random() * 7);
+                    temp1 = 1 + Math.floor(Math.random() * 10);
+                    temp2 = 1 + Math.floor(Math.random() * 10);
+                    flag1 = false;
+                    flag2 = false;
+                    if (Math.random() > 0.5) {temp1 *= 10; flag1 = true;}
+                    if (Math.random() > 0.5 && !flag1) {temp1 *= 100;}
+                    if (Math.random() > 0.5) {temp2 *= 10; flag2 = true;}
+                    if (Math.random() > 0.5 && !flag2) {temp2 *= 100;}
+                    if (temp2 > temp1) {
+                        var buf = temp1;
+                        temp1 = temp2;
+                        temp2 = buf;
+                    }
+                    var select_operator_elem_value = select_operator_elem.value;
+                    operator = select_operator_elem_value.length == 1 ? select_operator_elem_value : Math.random() > 0.5 ? "+" : "-";
+                    a = operator == "+" ? (temp1 + temp2) * b : (temp1 - temp2) * b;
+                } while (a % b != 0 || a ==  0 || a > 999 || a % 100 == 0 || a % 10 == 0 || a <= b*9);
+                first_elem.value = "";
+                second_elem.value = "";
+                answer_elem.value = "";
+                document.getElementsByName("task")[0].innerHTML = a.toString() + " : " + b.toString();
+                document.getElementsByName("splitter")[0].innerHTML = b.toString();
+                document.getElementsByName("operator")[0].innerHTML = operator;
+                sendStatus("", true);
+                correct_flag = false;
+                enter_elem.disabled = false;
+            }
+        </script>
+        <style>
+            @media (min-width: 340px) {
+                #main-block {
+                    margin-top: 10%;
+                }
+            }
+
+            @media (max-width: 340px) {
+                #main-block {
+                    margin-top: 25px;
+                }
+            }
+
+            body {
+                font-family: 'Tahoma', 'Helvetica';
+                background-color: rgb(212, 156, 0);
+                color: black;
+                background-image: url(bg.jpg);
+                background-size: 100% 100%;
+            }
+
+            #main-block {
+                max-width: 520px;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: center;
+            }
+
+            #task-form {
+                height: auto;
+            }
+
+            input:focus {
+                outline: 5px solid orange;
+            }
+    
+            #task-form input {
+                background-color: ghostwhite;
+                box-shadow: 0 0 10px  rgba(86, 151, 0, 0.5);
+            }
+
+            #head-block {
+                height: 100px;
+                margin-left: 30px;
+            }
+
+            #menu, #canary {
+                vertical-align: top;
+                text-align: left;
+                display: inline-block;
+            }
+
+            #menu {
+                float: left;
+                margin-left: 25px;
+            }
+
+            #canary {
+                width: 140px;
+                float: right;
+            }
+
+            #score {
+                color: rgb(86, 151, 0);
+                font-size: 120%;
+                font-weight: bold;
+                width: 80px;
+                text-align: right;
+                margin-bottom: 10px;
+            }
+
+            #select-operator {
+                font-weight: bold;
+                width: 80px;
+                height: 25px;
+                border-radius: 10px;
+            }
+    
+            #task-form label, #task-form input {
+                height: 50px;
+                font-size: 120%;
+                font-weight: bold;
+                display: inline-block;
+                text-align: center;
+                margin-top: 10px;
+            }
+    
+            #task-form input {
+                border: 2px solid rgb(86, 151, 0);
+                border-radius: 10px;
+            }
+    
+            #task-form input[type="text"] {
+                width: 80px;
+            }
+    
+            #task-form input[type="button"] {
+                width: 200px;
+                margin-top: 25px;
+                margin-left: 15px;
+                box-shadow: 0 0 10px  rgba(86, 151, 0, 0.5);
+                background: linear-gradient(0deg, rgb(86, 151, 0) 0%, orange 50%, rgb(86, 151, 0) 100%);
+            }
+
+            #task-form input[type="button"]:hover {
+                background: linear-gradient(0deg, orange 0%, rgb(86, 151, 0) 50%, orange 100%);
+            }
+    
+            #task-form label[name="task"], #task-form input[type="button"] {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+    
+            #task-form label[name="task"] {
+                width: 100px;
+                text-align: right;
+            }
+    
+            #task-form label[name="operator"] {
+                width: 15px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+    
+            #task-form label[name="status"] {
+                width: 305px;
+                height: 50px;
+                margin-top: 0px;
+            }
+
+            #text-block {
+                font-size: 80%;
+                text-align: center;
+                margin-left: 25px;
+            }
+
+            #ico-copyright a, #my-github a {
+                color: black;
+            }
+        </style>
+    </body>
+</html>
